@@ -10,7 +10,9 @@
   },
   "author": "Enrique Daimiel <enrique.daimiel@bbva.com>",
   "license": "",
-  "dependencies": {},
+  "dependencies": {
+    "request": "^2.81.0"
+  },
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-zip": "^4.0.0"
