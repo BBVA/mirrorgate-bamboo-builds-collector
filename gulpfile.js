@@ -18,7 +18,7 @@ const gulp = require('gulp');
 const zip = require('gulp-zip');
  
 gulp.task('package', () =>
-  gulp.src(['index.js', 'lambda.js', 'src*/**/*', 'node_modules*/**/*'])
+  gulp.src(['**/*'],{cwd:'collector'})
     .pipe(zip('mirrorgate-bamboo-builds-collector.zip'))
     .pipe(gulp.dest('build'))
 );

@@ -16,7 +16,7 @@
 
 /* Run as Lambda fucntion */
 
-const BuildsService = require('./src/service/BuildsService');
+const BuildsService = require('./service/BuildsService');
 
 var service = new BuildsService();
 
