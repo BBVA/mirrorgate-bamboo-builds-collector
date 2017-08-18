@@ -7,7 +7,7 @@ services:
         - .:/tmp/repo
         - ~/.npmrc:/tmp/repo/.npmrc
       working_dir: "/tmp/repo"
-      command: "npm install && cd collector && npm install"
+      command:  bash -c "npm install && cd collector && npm install"
   package:
       image: "node:7-slim"
       volumes:
