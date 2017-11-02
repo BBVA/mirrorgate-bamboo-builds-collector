@@ -21,17 +21,17 @@ const BuildsService = require('./service/BuildsService');
 var service = new BuildsService();
 
 exports.handler = (event, context, callback) =>  {
-  
+
   context.callbackWaitsForEmptyEventLoop = false;
 
   service
     .getBambooBuilds()
     .then( (builds) => {
-      if(builds.length > 0){   
+      if(builds.length > 0){
         service
           .sendBuilds(builds)
           .then( (res) => {
-            console.log(res);
+            console.log(JSON.stringify(res));
             callback(null, res);
           })
           .catch( (err) => {
