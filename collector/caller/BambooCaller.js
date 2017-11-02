@@ -19,12 +19,12 @@ const config = require('../config/config');
 const BuildDTO = require('../dto/BuildDTO');
 
 function BambooCaller() {
-  
+
   this.getBuilds = function(){
     return new Promise( (resolve, reject) => {
-  
+
       var auth = Buffer.from(`${config.bamboo_user}:${config.bamboo_password}`).toString('base64');
-      
+
       request({
         url: `${config.bamboo_builds_url}/rest/api/latest/result?os_authType=basic&expand=results[0:100].result`,
         method: 'GET',
@@ -33,25 +33,25 @@ function BambooCaller() {
           'Accept': 'application/json'
         }
       }, (err, res, body) => {
-        
-        if(err) {          
+
+        if(err) {
           return reject(err);
         }
-        
+
         if(res.statusCode >= 400) {
           return reject({
             statusCode: res.statusCode,
             statusMessage: res.statusMessage
           });
         }
-    
+
         var builds = [];
-        
+
         body = JSON.parse(body);
-        
+
         if(body.results) {
-          
-          body.results.result.forEach((data) => {         
+
+          body.results.result.forEach((data) => {
             var build = new BuildDTO();
             build.setBuildUrl(_formatBuildUrl(data.link.href));
             build.setBuildStatus(data.buildState);
@@ -65,16 +65,16 @@ function BambooCaller() {
             builds.push(build);
           });
         }
-        
+
         resolve(builds);
-      });  
+      });
     });
   };
-  
+
   /**
-   * This is needed to use a unique URL Id format for a build. For example: 
+   * This is needed to use a unique URL Id format for a build. For example:
    * "http://localhost:8080/mirrorgate/rest/api/latest/result/MG-TEST-10" needs
-   * to be turned into "http://localhost:8080/mirrorgate/browse/MG-TEST/latest" 
+   * to be turned into "http://localhost:8080/mirrorgate/browse/MG-TEST/latest"
    * @param  {String} url API rest URL for a build
    * @return {String}     Unique URL Id
    */

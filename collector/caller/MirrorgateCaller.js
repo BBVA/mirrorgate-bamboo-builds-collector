@@ -20,7 +20,7 @@ const config = require('../config/config');
 function MirrorgateCaller() {
 
   this.sendBuildsToBackend = function(builds){
-    
+
     return new Promise((resolve, reject) => {
 
       let pending = builds.length;
@@ -39,7 +39,7 @@ function MirrorgateCaller() {
 
           pending--;
           if(pending <= 0) {
-            resolve(`${builds.length} builds have been sent to MirrorGate`);
+            resolve(builds);
           }
         });
       });

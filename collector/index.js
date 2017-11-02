@@ -22,7 +22,7 @@ var service = new BuildsService();
 service
   .getBambooBuilds()
   .then( (builds) => {
-    if(builds.length > 0){   
+    if(builds.length > 0){
       service
         .sendBuilds(builds)
         .then( (res) => {
