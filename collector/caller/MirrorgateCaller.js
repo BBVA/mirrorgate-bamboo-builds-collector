@@ -15,21 +15,30 @@
  */
 
 const request = require('request');
-const config = require('../config/config');
+const fs = require('fs');
+const config = require('nconf');
 
-function MirrorgateCaller() {
+config
+  .argv()
+  .env()
+  .file('config/config.json');
 
-  this.sendBuildsToBackend = function(builds){
+module.exports = {
+
+  sendBuilds: (builds) => {
+
+    let auth = new Buffer(config.get('MIRRORGATE_USER') + ':' + config.get('MIRRORGATE_PASSWORD')).toString('base64');
 
     return new Promise((resolve, reject) => {
 
       let pending = builds.length;
       builds.forEach((build) => {
         request({
-          url: `${config.mirrorgate_builds_url}/api/builds`,
+          url: `${config.get('MIRRORGATE_ENDPOINT')}/api/builds`,
           method: 'POST',
           headers: {
             'content-type': 'application/json',
+            'Authorization' : `Basic ${auth}`
           },
           body: JSON.stringify(build)
         }, (err, res, body) => {
@@ -44,8 +53,5 @@ function MirrorgateCaller() {
         });
       });
     });
-  };
+  }
 }
-
-
-module.exports = MirrorgateCaller;

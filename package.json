@@ -13,5 +13,9 @@
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-zip": "^4.0.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.143.0",
+    "nconf": "^0.8.5"
   }
 }

@@ -15,35 +15,57 @@
  */
 
 /* Run as Lambda fucntion */
+/* Run as Lambda fucntion */
+const AWS = require('aws-sdk');
+const config = require('nconf');
 
-const BuildsService = require('./service/BuildsService');
+config
+  .argv()
+  .env()
+  .file('config/config.json');
 
-var service = new BuildsService();
+const MGCaller = require('./caller/MirrorgateCaller');
+const BambooCaller = require('./caller/BambooCaller');
 
-exports.handler = (event, context, callback) =>  {
+exports.handler = (event, context) =>  {
 
   context.callbackWaitsForEmptyEventLoop = false;
 
-  service
-    .getBambooBuilds()
+  if(config.get('S3_BUCKET_NAME') && config.get('S3_BUCKET_KEY')) {
+    let s3 = new AWS.S3();
+    s3.getObject({
+      Bucket: config.get('S3_BUCKET_NAME'),
+      Key: config.get('S3_BUCKET_KEY')
+    }).promise()
+      .then((data) => {
+        data = JSON.parse(data.Body);
+        config.set('MIRRORGATE_USERNAME', data.MIRRORGATE_USERNAME);
+        config.set('MIRRORGATE_PASSWORD', data.MIRRORGATE_PASSWORD);
+        config.set('BAMBOO_USERNAME', data.BAMBOO_USERNAME);
+        config.set('BAMBOO_PASSWORD', data.BAMBOO_PASSWORD);
+        getBuilds();
+      })
+      .catch( err => console.error(`Error: ${JSON.stringify(err)}`));
+  } else {
+    getBuilds();
+  }
+
+};
+
+function getBuilds(callback) {
+  return BambooCaller
+    .getBuilds()
     .then( (builds) => {
       if(builds.length > 0){
-        service
+        MGCaller
           .sendBuilds(builds)
           .then( (res) => {
             console.log(JSON.stringify(res));
-            callback(null, res);
           })
-          .catch( (err) => {
-            callback(err);
-          });
+          .catch( err => console.error(`Error: ${JSON.stringify(err)}`));
       } else {
         console.log('There are not builds to send');
-        callback(null, 'There are not builds to send');
       }
     })
-    .catch( (err) => {
-      callback(err);
-    });
-
-};
+    .catch( err => console.error(err));
+}
