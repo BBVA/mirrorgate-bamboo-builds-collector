@@ -15,18 +15,25 @@
  */
 
 const request = require('request');
-const config = require('../config/config');
+const fs = require('fs');
+const config = require('nconf');
+
+config
+  .argv()
+  .env()
+  .file('config/config.json');
+
 const BuildDTO = require('../dto/BuildDTO');
 
-function BambooCaller() {
+module.exports = {
 
-  this.getBuilds = function(){
+  getBuilds: () => {
     return new Promise( (resolve, reject) => {
 
-      var auth = Buffer.from(`${config.bamboo_user}:${config.bamboo_password}`).toString('base64');
+      var auth = Buffer.from(`${config.get('BAMBOO_USERNAME')}:${config.get('BAMBOO_PASSWORD')}`).toString('base64');
 
       request({
-        url: `${config.bamboo_builds_url}/rest/api/latest/result?os_authType=basic&expand=results[0:100].result`,
+        url: `${config.get('BAMBOO_ENDPOINT')}/rest/api/latest/result?os_authType=basic&expand=results[0:100].result`,
         method: 'GET',
         headers: {
           'Authorization': `Basic ${auth}`,
@@ -69,19 +76,18 @@ function BambooCaller() {
         resolve(builds);
       });
     });
-  };
-
-  /**
-   * This is needed to use a unique URL Id format for a build. For example:
-   * "http://localhost:8080/mirrorgate/rest/api/latest/result/MG-TEST-10" needs
-   * to be turned into "http://localhost:8080/mirrorgate/browse/MG-TEST/latest"
-   * @param  {String} url API rest URL for a build
-   * @return {String}     Unique URL Id
-   */
-  function _formatBuildUrl(url) {
-    let key_plan = url.replace(/.*\//,'').replace(/-\d+$/,'');
-    return `${config.bamboo_builds_url}/browse/${key_plan}/latest`;
   }
-}
 
-module.exports = BambooCaller;
+};
+
+/**
+ * This is needed to use a unique URL Id format for a build. For example:
+ * "http://localhost:8080/mirrorgate/rest/api/latest/result/MG-TEST-10" needs
+ * to be turned into "http://localhost:8080/mirrorgate/browse/MG-TEST/latest"
+ * @param  {String} url API rest URL for a build
+ * @return {String}     Unique URL Id
+ */
+function _formatBuildUrl(url) {
+  let key_plan = url.replace(/.*\//,'').replace(/-\d+$/,'');
+  return `${config.get('BAMBOO_ENDPOINT')}/browse/${key_plan}/latest`;
+}

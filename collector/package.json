@@ -10,7 +10,8 @@
   "author": "Enrique Daimiel <enrique.daimiel@bbva.com>",
   "license": "",
   "dependencies": {
-    "aws-sdk": "^2.100.0",
+    "aws-sdk": "^2.143.0",
+    "nconf": "^0.8.5",
     "request": "^2.81.0"
   }
 }

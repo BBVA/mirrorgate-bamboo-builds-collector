@@ -15,30 +15,6 @@
  */
 
 /* Run as local funtcion */
-const BuildsService = require('./service/BuildsService');
-
-var service = new BuildsService();
-
-service
-  .getBambooBuilds()
-  .then( (builds) => {
-    if(builds.length > 0){
-      service
-        .sendBuilds(builds)
-        .then( (res) => {
-          console.log(res);
-          process.exit(0);
-        })
-        .catch( (err) => {
-          console.log(err);
-          process.exit(1);
-        });
-    } else {
-      console.log('There are not builds to send');
-      process.exit(0);
-    }
-  })
-  .catch( (err) => {
-    console.log(err);
-    process.exit(1);
-  });
+require('./lambda').handler({}, {}, (error) => {
+  process.exit(error ? 1 : 0);
+});
