@@ -27,13 +27,15 @@ const BuildDTO = require('../dto/BuildDTO');
 
 module.exports = {
 
-  getBuilds: () => {
+  getBuilds: (branchMaster) => {
     return new Promise( (resolve, reject) => {
 
       var auth = Buffer.from(`${config.get('BAMBOO_USERNAME')}:${config.get('BAMBOO_PASSWORD')}`).toString('base64');
 
       request({
-        url: `${config.get('BAMBOO_ENDPOINT')}/rest/api/latest/result?os_authType=basic&expand=results[0:100].result`,
+        url: branchMaster ?
+          `${config.get('BAMBOO_ENDPOINT')}/rest/api/latest/result.json?os_authType=basic&expand=results.result` :
+          `${config.get('BAMBOO_ENDPOINT')}/rest/api/latest/plan.json?os_authType=basic&expand=plans.plan.branches.branch.latestResult`,
         method: 'GET',
         headers: {
           'Authorization': `Basic ${auth}`,
@@ -56,29 +58,39 @@ module.exports = {
 
         body = JSON.parse(body);
 
-        if(body.results) {
-
-          body.results.result.forEach((data) => {
-            var build = new BuildDTO();
-            build.setBuildUrl(_formatBuildUrl(data.link.href));
-            build.setBuildStatus(data.buildState);
-            build.setStartTime(new Date(data.buildStartedTime).getTime());
-            build.setEndTime(new Date(data.buildCompletedTime).getTime());
-            build.setDuration(data.buildDuration);
-            // build.setCulprits();
-            build.setProjectName(data.projectName);
-            // build.setRepoName();
-            build.setNumber(data.buildNumber);
-            builds.push(build);
+        if(branchMaster) {
+          builds = getBuilds(body.results.result);
+        } else {
+          body.plans.plan.forEach((plan) => {
+            builds.push.apply(builds, getBuilds(plan.branches.branch));
           });
-        }
 
-        resolve(builds);
+        }
+      resolve(builds);
       });
     });
   }
-
 };
+
+function getBuilds(results) {
+  var builds = [];
+  results.forEach((data) => {
+    data = data;
+    var build = new BuildDTO();
+    build.setBuildUrl(_formatBuildUrl(data.link.href));
+    build.setBuildStatus(data.buildState || data.latestResult.buildState);
+    build.setStartTime(new Date(data.buildStartedTime || data.latestResult.buildStartedTime ).getTime());
+    build.setEndTime(new Date(data.buildCompletedTime || data.latestResult.buildCompletedTime).getTime());
+    build.setDuration(data.buildDuration || data.latestResult.buildDuration);
+    // build.setCulprits();
+    build.setProjectName(data.projectName || data.latestResult.projectName);
+    // build.setRepoName();
+    build.setNumber(data.buildNumber || data.latestResult.buildNumber);
+    build.setBranch(data.shortName || 'master');
+    builds.push(build);
+  });
+  return builds;
+}
 
 /**
  * This is needed to use a unique URL Id format for a build. For example:
