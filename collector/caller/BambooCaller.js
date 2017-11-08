@@ -75,19 +75,20 @@ module.exports = {
 function getBuilds(results) {
   var builds = [];
   results.forEach((data) => {
-    data = data;
-    var build = new BuildDTO();
-    build.setBuildUrl(_formatBuildUrl(data.link.href));
-    build.setBuildStatus(data.buildState || data.latestResult.buildState);
-    build.setStartTime(new Date(data.buildStartedTime || data.latestResult.buildStartedTime ).getTime());
-    build.setEndTime(new Date(data.buildCompletedTime || data.latestResult.buildCompletedTime).getTime());
-    build.setDuration(data.buildDuration || data.latestResult.buildDuration);
-    // build.setCulprits();
-    build.setProjectName(data.projectName || data.latestResult.projectName);
-    // build.setRepoName();
-    build.setNumber(data.buildNumber || data.latestResult.buildNumber);
-    build.setBranch(data.shortName || 'master');
-    builds.push(build);
+    if(data.buildState || data.latestResult) {
+      var build = new BuildDTO();
+      build.setBuildUrl(_formatBuildUrl(data.link.href));
+      build.setBuildStatus(data.buildState || data.latestResult.buildState || null);
+      build.setStartTime(new Date(data.buildStartedTime || data.latestResult.buildStartedTime || null).getTime());
+      build.setEndTime(new Date(data.buildCompletedTime || data.latestResult.buildCompletedTime || null).getTime());
+      build.setDuration(data.buildDuration || data.latestResult.buildDuration || null);
+      // build.setCulprits();
+      build.setProjectName(data.projectName || data.latestResult.projectName || null);
+      // build.setRepoName();
+      build.setNumber(data.buildNumber || data.latestResult.buildNumber || null);
+      build.setBranch(data.shortName || 'master');
+      builds.push(build);
+    }
   });
   return builds;
 }
