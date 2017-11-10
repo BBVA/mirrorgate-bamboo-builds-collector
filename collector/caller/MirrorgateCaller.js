@@ -27,10 +27,11 @@ module.exports = {
 
   sendBuilds: (builds) => {
 
-    let auth = new Buffer(config.get('MIRRORGATE_USER') + ':' + config.get('MIRRORGATE_PASSWORD')).toString('base64');
+    let auth = new Buffer(config.get('MIRRORGATE_USERNAME') + ':' + config.get('MIRRORGATE_PASSWORD')).toString('base64');
 
     return new Promise((resolve, reject) => {
 
+      let buildsSuccessfullySent = 0;
       let pending = builds.length;
       builds.forEach((build) => {
         request({
@@ -42,13 +43,23 @@ module.exports = {
           },
           body: JSON.stringify(build)
         }, (err, res, body) => {
+          pending--;
+
           if(err) {
-            console.log(err);
+            console.error(err);
           }
 
-          pending--;
+          if(res.statusCode >= 400) {
+            console.error({
+              statusCode: res.statusCode,
+              statusMessage: res.statusMessage
+            });
+          } else {
+            buildsSuccessfullySent++;
+          }
+
           if(pending <= 0) {
-            resolve(builds);
+            resolve(buildsSuccessfullySent);
           }
         });
       });

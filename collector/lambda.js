@@ -43,25 +43,25 @@ exports.handler = (event, context) =>  {
         config.set('MIRRORGATE_PASSWORD', data.MIRRORGATE_PASSWORD);
         config.set('BAMBOO_USERNAME', data.BAMBOO_USERNAME);
         config.set('BAMBOO_PASSWORD', data.BAMBOO_PASSWORD);
-        getBuilds();
+        getBuilds(true);
+        getBuilds(false);
       })
       .catch( err => console.error(`Error: ${JSON.stringify(err)}`));
   } else {
-    getBuilds();
+    getBuilds(true);
+    getBuilds(false);
   }
 
 };
 
-function getBuilds(callback) {
+function getBuilds(isMasterBranch) {
   return BambooCaller
-    .getBuilds()
+    .getBuilds(isMasterBranch)
     .then( (builds) => {
       if(builds.length > 0){
         MGCaller
           .sendBuilds(builds)
-          .then( (res) => {
-            console.log(JSON.stringify(res));
-          })
+          .then( res => console.log(`${res} builds successfully sent to MirrorGate`))
           .catch( err => console.error(`Error: ${JSON.stringify(err)}`));
       } else {
         console.log('There are not builds to send');
