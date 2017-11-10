@@ -61,7 +61,7 @@ function getBuilds(isMasterBranch) {
       if(builds.length > 0){
         MGCaller
           .sendBuilds(builds)
-          .then( res => console.log(`Builds sent to MirrorGate: ${JSON.stringify(res, null, '  ')}`))
+          .then( res => console.log(`${res} builds successfully sent to MirrorGate`))
           .catch( err => console.error(`Error: ${JSON.stringify(err)}`));
       } else {
         console.log('There are not builds to send');
