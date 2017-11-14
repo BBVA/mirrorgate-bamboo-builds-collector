@@ -23,12 +23,51 @@ config
   .env()
   .file('config/config.json');
 
+const auth = new Buffer(config.get('MIRRORGATE_USERNAME') + ':' + config.get('MIRRORGATE_PASSWORD')).toString('base64');
+
 module.exports = {
 
+  getCollectorLatestDate: () => {
+    return new Promise((resolve, reject) => {
+      request({
+        url: `${config.get('MIRRORGATE_ENDPOINT')}/api/collectors/${config.get("COLLECTOR_ID")}`,
+        method: 'GET',
+        headers: {
+          'content-type': 'application/json',
+          'Authorization' : `Basic ${auth}`
+        }
+      }, (err, res, body) => {
+
+        if(err) {
+          console.error(err);
+        }
+        console.log('Last update ' + (body || 'never'));
+        resolve(body);
+      });
+    });
+    {id}
+  },
+  updateCollectorLatestDate: (date) => {
+    return new Promise((resolve) => {
+      request({
+        url: `${config.get('MIRRORGATE_ENDPOINT')}/api/collectors/${config.get("COLLECTOR_ID")}`,
+        method: 'PUT',
+        headers: {
+          'content-type': 'application/json',
+          'Authorization' : `Basic ${auth}`
+        },
+        body: JSON.stringify(date)
+      }, (err, res, body) => {
+        if(err) {
+          console.error(err);
+        }
+
+        resolve();
+      });  
+    });
+  },
+
   sendBuilds: (builds) => {
-
-    let auth = new Buffer(config.get('MIRRORGATE_USERNAME') + ':' + config.get('MIRRORGATE_PASSWORD')).toString('base64');
-
     return new Promise((resolve, reject) => {
 
       let buildsSuccessfullySent = 0;
