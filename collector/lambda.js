@@ -43,15 +43,12 @@ exports.handler = (event, context) =>  {
         config.set('MIRRORGATE_PASSWORD', data.MIRRORGATE_PASSWORD);
         config.set('BAMBOO_USERNAME', data.BAMBOO_USERNAME);
         config.set('BAMBOO_PASSWORD', data.BAMBOO_PASSWORD);
-        getBuilds(true);
-        getBuilds(false);
+        getBuilds();
       })
       .catch( err => console.error(`Error: ${JSON.stringify(err)}`));
   } else {
-    getBuilds(true);
-    getBuilds(false);
+    getBuilds();
   }
-
 };
 
 function getBuilds(isMasterBranch) {
