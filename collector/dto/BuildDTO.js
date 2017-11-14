@@ -54,6 +54,11 @@ function BuildDTO() {
   this.setNumber = function(number) {
     this.number = number;
   };
+  
+  this.setTimestamp = function(timestamp) {
+    this.timestamp = timestamp;
+  };
+
 }
 
 module.exports = BuildDTO;

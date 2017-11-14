@@ -27,15 +27,13 @@ const BuildDTO = require('../dto/BuildDTO');
 
 module.exports = {
 
-  getBuilds: (branchMaster) => {
+  getBuilds: () => {
     return new Promise( (resolve, reject) => {
 
       var auth = Buffer.from(`${config.get('BAMBOO_USERNAME')}:${config.get('BAMBOO_PASSWORD')}`).toString('base64');
 
       request({
-        url: branchMaster ?
-          `${config.get('BAMBOO_ENDPOINT')}/rest/api/latest/result.json?os_authType=basic&expand=results.result` :
-          `${config.get('BAMBOO_ENDPOINT')}/rest/api/latest/plan.json?os_authType=basic&expand=plans.plan.branches.branch.latestResult`,
+        url: `${config.get('BAMBOO_ENDPOINT')}/rest/api/latest/result.json?os_authType=basic&expand=results.result,results.result.plan.branches.branch.latestResult`,
         method: 'GET',
         headers: {
           'Authorization': `Basic ${auth}`,
@@ -54,40 +52,48 @@ module.exports = {
           });
         }
 
-        var builds = [];
-
         body = JSON.parse(body);
 
-        if(branchMaster) {
-          builds = getBuilds(body.results.result);
-        } else {
-          body.plans.plan.forEach((plan) => {
-            builds.push.apply(builds, getBuilds(plan.branches.branch));
-          });
-
-        }
-      resolve(builds);
+        resolve(getBuilds(body.results.result));
       });
     });
   }
 };
 
+function stateMapper(source) {
+  return {
+    Successful: 'Success',
+    Failed: 'Failure',
+  }[source] || source;
+}
+
 function getBuilds(results) {
   var builds = [];
-  results.forEach((data) => {
+  results.filter((d) => d.enabled || (d.plan && d.plan.enabled)).forEach((data) => {
     if(data.buildState || data.latestResult) {
       var build = new BuildDTO();
       build.setBuildUrl(_formatBuildUrl(data.link.href));
-      build.setBuildStatus(data.buildState || data.latestResult.buildState || null);
-      build.setStartTime(new Date(data.buildStartedTime || data.latestResult.buildStartedTime || null).getTime());
-      build.setEndTime(new Date(data.buildCompletedTime || data.latestResult.buildCompletedTime || null).getTime());
+      build.setBuildStatus(stateMapper(data.buildState || data.latestResult.buildState));
+      if(data.buildStartedTime || data.latestResult.buildStartedTime) {
+        build.setStartTime(new Date(data.buildStartedTime || data.latestResult.buildStartedTime).getTime());
+        build.setTimestamp(new Date(data.buildStartedTime || data.latestResult.buildStartedTime).getTime());
+      }
+      if(data.buildCompletedTime || data.latestResult.buildCompletedTime) {
+        build.setEndTime(new Date(data.buildCompletedTime || data.latestResult.buildCompletedTime).getTime());
+        build.setTimestamp(new Date(data.buildCompletedTime || data.latestResult.buildCompletedTime).getTime());
+      }
       build.setDuration(data.buildDuration || data.latestResult.buildDuration || null);
       // build.setCulprits();
       build.setProjectName(data.projectName || data.latestResult.projectName || null);
-      // build.setRepoName();
+      build.setRepoName(data.planName || data.latestResult.plan.master.shortName || null);
       build.setNumber(data.buildNumber || data.latestResult.buildNumber || null);
       build.setBranch(data.shortName || 'master');
       builds.push(build);
+    } else {
+      console.log('Not execution for build ' + data.link.href);
+    }
+    if(data.plan && data.plan.branches) {
+      builds.push.apply(builds, getBuilds(data.plan.branches.branch));
     }
   });
   return builds;

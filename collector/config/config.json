@@ -6,5 +6,6 @@
   "BAMBOO_USERNAME": null,
   "BAMBOO_PASSWORD": null,
   "S3_BUCKET_NAME": null,
-  "S3_BUCKET_KEY": null
+  "S3_BUCKET_KEY": null,
+  "COLLECTOR_ID": "mirrorgate-bamboo-collector"
 }

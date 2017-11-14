@@ -43,29 +43,34 @@ exports.handler = (event, context) =>  {
         config.set('MIRRORGATE_PASSWORD', data.MIRRORGATE_PASSWORD);
         config.set('BAMBOO_USERNAME', data.BAMBOO_USERNAME);
         config.set('BAMBOO_PASSWORD', data.BAMBOO_PASSWORD);
-        getBuilds(true);
-        getBuilds(false);
+        getBuilds();
       })
       .catch( err => console.error(`Error: ${JSON.stringify(err)}`));
   } else {
-    getBuilds(true);
-    getBuilds(false);
+    getBuilds();
   }
-
 };
 
 function getBuilds(isMasterBranch) {
-  return BambooCaller
+  return MGCaller.getCollectorLatestDate().then((lastTS) =>  {
+    return BambooCaller
     .getBuilds(isMasterBranch)
     .then( (builds) => {
+      builds = builds.filter((b) => b.timestamp > lastTS);
       if(builds.length > 0){
         MGCaller
           .sendBuilds(builds)
-          .then( res => console.log(`${res} builds successfully sent to MirrorGate`))
+          .then( res => {
+            console.log(`${res} builds successfully sent to MirrorGate`);
+            let lastTS = builds.reduce((a,b) => Math.max(a, b.timestamp), 0);
+            return MGCaller.updateCollectorLatestDate(new Date(lastTS));
+          })
           .catch( err => console.error(`Error: ${JSON.stringify(err)}`));
       } else {
         console.log('There are not builds to send');
       }
     })
-    .catch( err => console.error(err));
+    .catch( err => console.error(err));    
+  });
+  
 }
