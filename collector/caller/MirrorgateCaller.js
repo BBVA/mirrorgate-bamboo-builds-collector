@@ -23,7 +23,7 @@ config
   .env()
   .file('config/config.json');
 
-const auth = new Buffer(config.get('MIRRORGATE_USERNAME') + ':' + config.get('MIRRORGATE_PASSWORD')).toString('base64');
+const auth = () => new Buffer(config.get('MIRRORGATE_USERNAME') + ':' + config.get('MIRRORGATE_PASSWORD')).toString('base64');
 
 module.exports = {
 
@@ -33,8 +33,7 @@ module.exports = {
         url: `${config.get('MIRRORGATE_ENDPOINT')}/api/collectors/${config.get("COLLECTOR_ID")}`,
         method: 'GET',
         headers: {
-          'content-type': 'application/json',
-          'Authorization' : `Basic ${auth}`
+          'Authorization' : `Basic ${auth()}`
         }
       }, (err, res, body) => {
 
@@ -54,7 +53,7 @@ module.exports = {
         method: 'PUT',
         headers: {
           'content-type': 'application/json',
-          'Authorization' : `Basic ${auth}`
+          'Authorization' : `Basic ${auth()}`
         },
         body: JSON.stringify(date)
       }, (err, res, body) => {
@@ -78,7 +77,7 @@ module.exports = {
           method: 'POST',
           headers: {
             'content-type': 'application/json',
-            'Authorization' : `Basic ${auth}`
+            'Authorization' : `Basic ${auth()}`
           },
           body: JSON.stringify(build)
         }, (err, res, body) => {
