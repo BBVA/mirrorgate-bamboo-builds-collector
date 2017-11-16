@@ -8,7 +8,7 @@ This Node application connects to Bamboo and retrieves the latest builds that ha
 
 # Configuring
 
-Check [config.js](./src/config/config.js) file to check for configuration options.
+Check [config.js](./collector/config/config.json) file to check for configuration options.
 
 # Usage
 
