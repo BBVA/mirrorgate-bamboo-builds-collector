@@ -8,14 +8,18 @@
     "package": "./node_modules/gulp/bin/gulp.js package",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Enrique Daimiel <enrique.daimiel@bbva.com>",
-  "license": "",
+  "author": "BBVA",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BBVA/mirrorgate-bamboo-builds-collector.git"
+  },
+  "license": "Apache-2.0",
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-zip": "^4.0.0"
+    "gulp": "^4.0.0",
+    "gulp-zip": "^4.2.0"
   },
   "dependencies": {
-    "aws-sdk": "^2.143.0",
-    "nconf": "^0.8.5"
+    "aws-sdk": "^2.388.0",
+    "nconf": "^0.10.0"
   }
 }
