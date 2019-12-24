@@ -2,15 +2,13 @@
 
 ![MirrorGate](./media/images/logo-ae.png)
 
-
 This Node application connects to Bamboo and retrieves the latest builds that have been executed in the target instance.
 
-
-# Configuring
+## Configuring
 
 Check [config.js](./collector/config/config.json) file to check for configuration options.
 
-# Usage
+## Usage
 
 First install dependencies
 
@@ -33,15 +31,10 @@ or with npm
 
 ## Running in Amazon Lambda
 
-First package script zip with the following gulp task
+First package script zip with the following npm command
 
 ```sh
-./node_modules/gulp/bin/gulp.js package
-```
-or with npm
-
-```sh
-npm run package
+  npm run package
 ```
 
-Create a lambda with runtime Node.js 6.10 or grater and folowing handler `lambda.handler`. Note it will execute only once, so you will have to use a timed trigger to execute it eventually.
+Create a lambda with runtime Node.js 6.10 or grater and following handler `lambda.handler`. Note it will execute only once, so you will have to use a timed trigger to execute it eventually.

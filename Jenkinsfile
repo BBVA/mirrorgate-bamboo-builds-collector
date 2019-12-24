@@ -1,7 +1,5 @@
 #!groovy
 
-BAMBOO_COLLECTOR_ARTIFACT = 'mirrorgate-bamboo-builds-collector.zip'
-
 node ('global') {
 
     try {
@@ -15,7 +13,7 @@ node ('global') {
                 docker-compose -p \${BUILD_TAG} run -u \$(id -u) install
             """
         }
-        
+
         stage('Package Zip') {
             sh """
                 docker-compose -p \${BUILD_TAG} run -u \$(id -u) package
@@ -23,10 +21,13 @@ node ('global') {
         }
 
         stage('Publish on Jenkins') {
-      	    step([$class: "ArtifactArchiver", artifacts: "build/${BAMBOO_COLLECTOR_ARTIFACT}", fingerprint: true])
+            step([$class: "ArtifactArchiver", artifacts: ".serverless/*.zip", fingerprint: true])
         }
 
-    } catch(Exception e) {
-        throw e;
+    } finally {
+        sh """
+            docker-compose -p \${BUILD_TAG} down --volumes
+        """
     }
+
 }
