@@ -1,0 +1,27 @@
+service: mirrorgate-bamboo-builds-collector
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+package:
+  individually: true
+  include:
+    - config/**
+    - src/**
+    - index.js
+    - lambda.js
+  exclude:
+    - media/**
+    - .gitignore
+    - .jshintrc
+    - ./**.md
+    - ./**.json
+    - ./**.yml
+    - LICENSE
+    - Jenkinsfile
+    - .vscode/**
+
+functions:
+  mirrorgate-bamboo-builds-collector:
+    handler: lambda.handler

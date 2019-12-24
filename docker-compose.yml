@@ -2,16 +2,14 @@ version: '2'
 
 services:
   install:
-      image: "node:7-slim"
+      image: "node:12"
       volumes:
         - .:/tmp/repo
-        - ~/.npmrc:/tmp/repo/.npmrc
       working_dir: "/tmp/repo"
-      command:  bash -c "npm install && cd collector && npm install"
+      command:  bash -c "npm install"
   package:
-      image: "node:7-slim"
+      image: "node:12"
       volumes:
         - .:/tmp/repo
-        - ~/.npmrc:/tmp/repo/.npmrc
       working_dir: "/tmp/repo"
-      command: "./node_modules/gulp/bin/gulp.js package"
+      command: "npm run package"

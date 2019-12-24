@@ -4,8 +4,8 @@
   "description": "MirrorGate plugin for Bamboo",
   "main": "index.js",
   "scripts": {
-    "start": "node collector/index.js",
-    "package": "./node_modules/gulp/bin/gulp.js package",
+    "start": "node index.js",
+    "package": "serverless package",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "BBVA",
@@ -15,11 +15,11 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "gulp": "^4.0.0",
-    "gulp-zip": "^4.2.0"
+    "serverless": "1.60.4"
   },
   "dependencies": {
-    "aws-sdk": "^2.395.0",
-    "nconf": "^0.10.0"
+    "aws-sdk": "2.596.0",
+    "nconf": "0.10.0",
+    "request": "2.88.0"
   }
 }
