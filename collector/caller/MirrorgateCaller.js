@@ -23,7 +23,7 @@ config
   .env()
   .file('config/config.json');
 
-const auth = () => new Buffer(config.get('MIRRORGATE_USERNAME') + ':' + config.get('MIRRORGATE_PASSWORD')).toString('base64');
+const auth = () => Buffer.from(config.get('MIRRORGATE_USERNAME') + ':' + config.get('MIRRORGATE_PASSWORD')).toString('base64');
 
 module.exports = {
 
@@ -44,7 +44,6 @@ module.exports = {
         resolve(body);
       });
     });
-    {id}
   },
   updateCollectorLatestDate: (date) => {
     return new Promise((resolve) => {
@@ -62,7 +61,7 @@ module.exports = {
         }
 
         resolve();
-      });  
+      });
     });
   },
 
@@ -103,4 +102,4 @@ module.exports = {
       });
     });
   }
-}
+};
